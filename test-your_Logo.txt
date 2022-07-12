@@ -1,0 +1,93 @@
+package js1;
+
+import java.util.concurrent.TimeUnit;
+
+import org.openqa.selenium.By;
+import org.openqa.selenium.JavascriptExecutor;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.chrome.ChromeDriver;
+
+import org.testng.annotations.AfterTest;
+import org.testng.annotations.BeforeTest;
+import org.testng.annotations.Test;
+import org.testng.asserts.SoftAssert;
+
+import com.aventstack.extentreports.ExtentReports;
+import com.aventstack.extentreports.ExtentTest;
+import com.aventstack.extentreports.Status;
+import com.aventstack.extentreports.reporter.ExtentHtmlReporter;
+
+import io.github.bonigarcia.wdm.WebDriverManager;
+	
+public class set_1 {
+WebDriver driver;
+ExtentHtmlReporter htmlReporter;
+ExtentReports extent;
+ExtentTest test;
+	
+	public String URL="http://automationpractice.com/index.php?controller=authentication&back=my-account";
+	@BeforeTest
+	public void testcase() {
+		WebDriverManager.chromedriver().setup();
+		driver=new ChromeDriver();
+		driver.get(URL);
+		driver.manage().window().maximize();
+		driver.manage().timeouts().implicitlyWait(5, TimeUnit.SECONDS);
+		// start reporters
+		htmlReporter = new ExtentHtmlReporter("extent.html"); // the report will be in name of extent.html
+    
+        // create ExtentReports and attach reporter(s)
+        extent = new ExtentReports();
+        extent.attachReporter(htmlReporter);
+}
+	@Test
+	public void testcase1() throws InterruptedException {
+		SoftAssert SoftAssert=new SoftAssert();
+		
+		JavascriptExecutor js=(JavascriptExecutor)driver;
+		
+		// creates a toggle for the given test, adds all log events under it    
+        test = extent.createTest("MyFirstTest", "Test to verify the product is in the stock or out of stock ");
+        test.pass("Landing on the login page");
+        
+		System.out.println(javascript_util.getTitleByJS(driver));   
+		SoftAssert.assertEquals(javascript_util.getTitleByJS(driver), "Login - My Store");
+		test.pass("Title of the page is captured");
+		
+		
+		WebElement sub= driver.findElement(By.id("email"));
+		javascript_util.scrollIntoView(sub, driver);
+
+		js.executeScript("document.getElementById('email').value='nandysushanta9@gmail.com'");
+		test.info("User have entered username");
+		js.executeScript("document.getElementById('passwd').value='Santosh@3155'");
+		test.info("User have entered password");
+		js.executeScript("document.getElementById('SubmitLogin').click()");
+		test.info("User have pressed login button");
+		test.pass("Login Successfully");
+		test.log(Status.INFO, "Login Successfully");
+		
+		js.executeScript("document.getElementsByTagName('a')[20].click()");
+		js.executeScript("document.getElementsByClassName('right-block')[0].scrollIntoView()");
+		
+		WebElement webl = driver.findElement(By.className("available-now"));
+		System.out.println(webl.getText());
+		SoftAssert.assertEquals(webl.getText(), "In stock");
+		test.pass("Availabality has been checked");
+		
+		
+		WebElement w1=driver.findElement(By.xpath("//*[@class='available-now']"));
+		//javascript_util.flash(w1, driver);
+		javascript_util.drawBorder(w1, driver);
+		SoftAssert.assertAll();
+	}
+	
+	@AfterTest
+	public void After() {
+		driver.close();
+		test.pass("Browser has been closed");
+	// calling flush writes everything to the log file
+        extent.flush();
+	}
+}
